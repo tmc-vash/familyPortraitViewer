@@ -1,0 +1,79 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>The HTML5 Herald</title>
+    <meta name="description" content="The HTML5 Herald">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .button {
+            background: darkgreen;
+            border: 1px solid #333333;
+            color: lightgrey;
+            width:40px;
+        }
+
+        #button__pause{
+            display: none;
+        }
+
+        .button:hover {
+            background: #007700;
+        }
+        .menuBar {
+            display: flex;
+            height:60px;
+            position: absolute;
+            bottom: 0;
+            width:100%;
+        }
+
+        #imageCanvas {
+            width: 100%;
+            height: 100%;
+            background-color: #333333;
+            transform: scale(1);
+        }
+        #timeline {
+            flex: 1;
+            height:60px;
+            display: flex;
+            background: rgba(100,100,100,0.2);
+        }
+
+        .timeline__element-bar {
+            height:100%;
+            flex: 1;
+            background: #000;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .timeline__element {
+            width:100%;
+            background: #333333;
+        }
+        .timeline__element:hover {
+            background: green;
+        }
+
+
+    </style>
+</head>
+<body onload="app.init()">
+    <canvas width="3000px" height="2000px" id = "imageCanvas"></canvas>
+    <div class="menuBar">
+        <button class="button" id="button__play" onclick="app.play()"> > </button>
+        <button class="button" id="button__pause" onclick="app.pause()"> || </button>
+        <div id="timeline"></div>
+    </div>
+    <script src="images.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
