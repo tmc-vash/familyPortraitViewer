@@ -40,8 +40,12 @@
             background-color: #333333;
             transform: scale(1);
         }
-        #timeline {
+
+        #timeline-container {
             flex: 1;
+        }
+
+        #timeline {
             height:60px;
             display: flex;
             background: rgba(100,100,100,0.2);
@@ -62,6 +66,10 @@
         .timeline__element:hover {
             background: green;
         }
+        .timeline__element-bar:hover {
+            background: green;
+        }
+
 
 
     </style>
@@ -71,7 +79,10 @@
     <div class="menuBar">
         <button class="button" id="button__play" onclick="app.play()"> > </button>
         <button class="button" id="button__pause" onclick="app.pause()"> || </button>
-        <div id="timeline"></div>
+        <div id="timeline-container">
+            <canvas id="timeline"></canvas>
+        </div>
+
     </div>
     <script src="images.js"></script>
     <script src="app.js"></script>
