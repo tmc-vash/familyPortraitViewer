@@ -63,7 +63,7 @@ let app = (function () {
         const lastImageSeconds = parseInt(imageNames[i - 1].slice(11));
         const currentImageSeconds = parseInt(imageName.slice(11));
         const height = Math.min(canvasHeight, Math.abs(currentImageSeconds - lastImageSeconds) / 10);
-        ctx.fillRect(barWidth*i, 0, barWidth, height);
+        ctx.fillRect(barWidth*i, canvasHeight - height, barWidth,  height);
       }
     })
 
@@ -74,6 +74,18 @@ let app = (function () {
     ctx.fillRect(mousePos, 0, 5, canvasHeight);
   };
 
+  const drawTime = (imageName) => {
+
+    let timeMs = imageName.split(".")[0].split("-")[3];
+    let h = Math.floor(timeMs  /3600);
+    let m = Math.floor((timeMs -(h*3600))/60) ;
+    if (m<10) m = "0" + m;
+    let s = timeMs%60;
+    if(s<10) s = "0" + s;
+
+    document.getElementById("timecode").innerHTML = h + ":" + m + ":"+s;
+  };
+
   publicAPIs.play = () => {
     playerIntervalId = setInterval(() => {
       addImageToCanvas(document.getElementById('imageCanvas'), imageNames[currentImageIndex]);
@@ -81,6 +93,7 @@ let app = (function () {
       //document.getElementById('timeline__element_' + currentImageIndex).style.background = '#333333';
       currentImageIndex ++;
       drawTimeline();
+      drawTime(imageNames[currentImageIndex]);
       document.getElementById('timeline__element_' + currentImageIndex).style.background = '#666';
 
       if(imageNames.length === currentImageIndex + 1) {
