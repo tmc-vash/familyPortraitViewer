@@ -14,6 +14,7 @@ let app = (function () {
 
   let playerIntervalId;
   let currentImageIndex = 0;
+  let play = false;
 
   const canvas = document.getElementById('timeline');
   const rect = canvas.parentNode.getBoundingClientRect();
@@ -24,8 +25,6 @@ let app = (function () {
   const canvasHeight = canvas.offsetHeight;
   const canvasWidth = canvas.offsetWidth;
   const barWidth = canvasWidth/ (imageNames.length);
-  console.log('barWidth ', barWidth)
-  console.log('canvasWidth ', canvasWidth)
   //
   // Methods
   //
@@ -56,7 +55,8 @@ let app = (function () {
 
   const drawTimeline = (mousePos = -50) => {
     ctx.clearRect(0,0,canvasWidth, canvasHeight)
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = "rgba(255, 50, 50, 0.5)";
+
     imageNames.forEach((imageName, i) => {
 
       if (i > 1) {
@@ -65,6 +65,13 @@ let app = (function () {
         const height = Math.min(canvasHeight, Math.abs(currentImageSeconds - lastImageSeconds) / 10);
         ctx.fillRect(barWidth*i, canvasHeight - height, barWidth,  height);
       }
+    });
+
+    const maxAlphaValue = Math.max( ...imageNamesWithAlpha.map(imageNameWithAlpha => imageNameWithAlpha.alpha))
+    ctx.fillStyle = "rgba(50, 255, 50, 0.5)";
+    imageNamesWithAlpha.forEach((imageNameWithAlpha, i) => {
+      const height = canvasHeight * imageNameWithAlpha.alpha / maxAlphaValue;
+      ctx.fillRect(barWidth*i, canvasHeight - height, barWidth,  height);
     })
 
     ctx.fillStyle = "#dae1eb";
@@ -86,29 +93,47 @@ let app = (function () {
     document.getElementById("timecode").innerHTML = h + ":" + m + ":"+s;
   };
 
+  const gotoNextFrame = () => {
+    addImageToCanvas(document.getElementById('imageCanvas'), imageNames[currentImageIndex]);
+
+    currentImageIndex ++;
+    drawTimeline();
+    drawTime(imageNames[currentImageIndex]);
+    console.log('gotoNextFrame')
+    if(currentImageIndex < imageNames.length && play === true) {
+      setTimeout(() => {
+        gotoNextFrame()
+      }, 500)
+    }
+  }
+
   publicAPIs.play = () => {
-    playerIntervalId = setInterval(() => {
-      addImageToCanvas(document.getElementById('imageCanvas'), imageNames[currentImageIndex]);
-
-      //document.getElementById('timeline__element_' + currentImageIndex).style.background = '#333333';
-      currentImageIndex ++;
-      drawTimeline();
-      drawTime(imageNames[currentImageIndex]);
-      document.getElementById('timeline__element_' + currentImageIndex).style.background = '#666';
-
-      if(imageNames.length === currentImageIndex + 1) {
-        clearInterval(playerIntervalId);
-      }
-    }, 500)
+    play = true;
+    gotoNextFrame();
 
     document.getElementById('button__pause').style.display = 'block';
     document.getElementById('button__play').style.display = 'none';
   };
 
   publicAPIs.pause = () => {
-    clearInterval(playerIntervalId);
+    play = false;
     document.getElementById('button__pause').style.display = 'none';
     document.getElementById('button__play').style.display = 'block';
+  };
+
+  const getPreviewDiv = () => {
+    return document.getElementById('preview');
+  };
+
+  const showImagePreview = (offsetLeft, imageIndex) => {
+    const previewDiv = getPreviewDiv();
+    previewDiv.style.display = "block";
+    previewDiv.style.left = (offsetLeft - 100) + 'px';
+    previewDiv.children[0].setAttribute('src',imageFolderName +  '/'+  imageNames[Math.min(imageNames.length - 1, imageIndex)])
+  };
+
+  const hideImagePreview = () => {
+    getPreviewDiv().style.display = "none";
   };
 
   /**
@@ -119,9 +144,18 @@ let app = (function () {
 
     $(canvas).on('mousemove',  (evt)=> {
       const mousePosInElement = evt.pageX - $(canvas).offset().left;
-      console.log('mouseMove', mousePosInElement)
+      showImagePreview(evt.pageX, Math.round((mousePosInElement / canvasWidth) * imageNames.length))
       drawTimeline(mousePosInElement);
-    })
+    });
+
+    $(canvas).on('mouseout',  (evt)=> {
+      hideImagePreview();
+    });
+
+    $(canvas).on('click',  (evt)=> {
+      const mousePosInElement = evt.pageX - $(canvas).offset().left;
+      currentImageIndex = Math.round((mousePosInElement / canvasWidth) * imageNames.length);
+    });
 
   };
 
